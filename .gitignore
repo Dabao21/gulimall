@@ -9,7 +9,12 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
+**/mvnw
+**/mvnw.cmd
+**/.mvn
+**/target/
+.idea
+**/.gitignore
 # Package Files #
 *.jar
 *.war
