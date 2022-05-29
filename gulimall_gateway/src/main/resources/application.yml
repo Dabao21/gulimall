@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    gateway:
+      predicate:
+        cloud-foundry-route-service:
+          enabled: true
+      routes:
+        - id: test_route
+          uri: https://www.baidu.com
+          predicates:
+            - Query=url,baidu
+
+        - id: bilibili_route
+          uri: https://www.bilibili.com
+          predicates:
+            - Query=url,bilibili
+
+
