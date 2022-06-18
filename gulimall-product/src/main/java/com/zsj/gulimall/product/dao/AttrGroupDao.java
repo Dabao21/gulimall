@@ -1,8 +1,11 @@
 package com.zsj.gulimall.product.dao;
 
+import com.zsj.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.zsj.gulimall.product.entity.AttrGroupEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * 属性分组
@@ -13,5 +16,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface AttrGroupDao extends BaseMapper<AttrGroupEntity> {
-	
+
 }

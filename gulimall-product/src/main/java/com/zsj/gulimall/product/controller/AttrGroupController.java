@@ -1,15 +1,17 @@
 package com.zsj.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zsj.gulimall.product.entity.AttrEntity;
+import com.zsj.gulimall.product.service.AttrAttrgroupRelationService;
+import com.zsj.gulimall.product.service.AttrService;
+import com.zsj.gulimall.product.service.CategoryService;
+import com.zsj.gulimall.product.vo.AttrGroupRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.zsj.gulimall.product.entity.AttrGroupEntity;
 import com.zsj.gulimall.product.service.AttrGroupService;
@@ -31,14 +33,57 @@ public class AttrGroupController {
     @Autowired
     private AttrGroupService attrGroupService;
 
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private AttrService attrService;          //引用了这个Service然后用的方法不是直属的方法，而是创建了一个只服务于这个Controller的方法，感觉不太好
+
+    @Autowired
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
+
+    ///product/attrgroup/attr/relation  2022/6/19 3:54不按照雷锋杨来
+    @PostMapping
+    public R addRelation(@RequestBody List<AttrGroupRelationVo> vos){
+            attrAttrgroupRelationService.saveRelation(vos);
+            return R.ok();
+    }
+
+    ///product/attrgroup/{attrgroupId}/attr/relation
+    @GetMapping("/{attrgroupId}/attr/relation")    //获取分组实体关联的属性实体 1-n
+    public R attrRelation(@PathVariable("attrgroupId") Long attrgroupId)
+    {
+        List<AttrEntity> attrEntities=attrService.getRelationAttr(attrgroupId);
+        return R.ok().put("data",attrEntities);
+    }
+
+    ///product/attrgroup/{attrgroupId}/noattr/relation 获取分组没有关联的本分类下的属性
+    @GetMapping("/{attrgroupId}/noattr/relation")    //获取分组实体关联的属性实体 1-n
+    public R attrNoRelation(@PathVariable("attrgroupId") Long attrgroupId,
+                            @RequestParam Map<String, Object> params)
+    {
+       PageUtils pageUtils=attrService.getNoRelationAttr(attrgroupId,params);
+        return R.ok().put("data",pageUtils);  //这里干你妈的被坑了，前端写的data.page 第一个data不是这个data 前端应该data.data 2022/6/19 3:40
+    }
+
+
+    ///product/attrgroup/attr/relation/delete 移除关联
+    @RequestMapping("/attr/relation/delete")
+    public R deleteRelation(@RequestBody AttrGroupRelationVo[] vos)  //Post中 @RequestBody将json数据封装成对象
+    {
+        attrGroupService.deleteRelation(vos);
+        return R.ok();
+    }
+
+
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/{catelogId}")
     //@RequiresPermissions("product:attrgroup:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = attrGroupService.queryPage(params);
-
+    public R list(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
+        //PageUtils page = attrGroupService.queryPage(params);
+        PageUtils page = attrGroupService.queryPage(params,catelogId);
         return R.ok().put("page", page);
     }
 
@@ -50,7 +95,9 @@ public class AttrGroupController {
     //@RequiresPermissions("product:attrgroup:info")
     public R info(@PathVariable("attrGroupId") Long attrGroupId){
 		AttrGroupEntity attrGroup = attrGroupService.getById(attrGroupId);
-
+        Long catelogId = attrGroup.getCatelogId();
+        Long[] path =categoryService.findCatelogPath(catelogId);
+        attrGroup.setCatelogPath(path);
         return R.ok().put("attrGroup", attrGroup);
     }
 
