@@ -2,7 +2,10 @@ package com.zsj.gulimall.product.service.impl;
 
 import com.zsj.gulimall.product.dao.AttrAttrgroupRelationDao;
 import com.zsj.gulimall.product.entity.AttrAttrgroupRelationEntity;
+import com.zsj.gulimall.product.entity.AttrEntity;
+import com.zsj.gulimall.product.service.AttrService;
 import com.zsj.gulimall.product.vo.AttrGroupRelationVo;
+import com.zsj.gulimall.product.vo.AttrGroupWithAttrsVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,8 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Autowired
     AttrAttrgroupRelationDao attrAttrgroupRelationDao;
+    @Autowired
+    AttrService attrService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -84,6 +89,35 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             return attrAttrgroupRelationEntity;
         }).collect(Collectors.toList());
         attrAttrgroupRelationDao.deleteBatchRelation(entities);
+    }
+
+    /**
+    *@date 2022/6/19 15:35
+    *@Author Dabao
+    * 1.根据分类Id查找所有此分类下的分组和分组对应的属性
+    * 2.
+    **/
+    @Override
+    public List<AttrGroupWithAttrsVo> getAttrGroupWithAttrByCatelogId(Long catelogId) {
+
+        // 2022/6/19 15:42 1.查询分组信息
+        List<AttrGroupEntity> attrGroupEntityList = this.list(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+        // 2022/6/19 15:44  2.从关系表中查出分组关联的所有属性
+        List<AttrGroupWithAttrsVo> attrGroupWithAttrsVoList = attrGroupEntityList.stream().map((group) -> {
+            AttrGroupWithAttrsVo attrGroupWithAttrsVo = new AttrGroupWithAttrsVo();
+            BeanUtils.copyProperties(group, attrGroupWithAttrsVo);
+            // 2022/6/19 15:59  查找这个分组下的属性，如果这个分组下没有关联属性则返回空？不用判断吧？要的！
+            List<AttrEntity> relationAttrList = attrService.getRelationAttr(attrGroupWithAttrsVo.getAttrGroupId());
+            if (relationAttrList!=null) {
+                attrGroupWithAttrsVo.setAttrs(relationAttrList);
+
+            }
+            // 2022/6/19 16:05 不过很奇怪，如果没设也是null吧？
+            return attrGroupWithAttrsVo;
+
+        }).collect(Collectors.toList());
+
+        return attrGroupWithAttrsVoList;
     }
 
 }

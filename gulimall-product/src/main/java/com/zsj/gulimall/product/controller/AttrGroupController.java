@@ -10,6 +10,7 @@ import com.zsj.gulimall.product.service.AttrAttrgroupRelationService;
 import com.zsj.gulimall.product.service.AttrService;
 import com.zsj.gulimall.product.service.CategoryService;
 import com.zsj.gulimall.product.vo.AttrGroupRelationVo;
+import com.zsj.gulimall.product.vo.AttrGroupWithAttrsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,28 @@ public class AttrGroupController {
 
     @Autowired
     private AttrAttrgroupRelationService attrAttrgroupRelationService;
+
+
+    /**
+    *@date 2022/6/19 15:24
+    *@Author Dabao
+    * 1./product/attrgroup/{catelogId}/withattr
+    * 2.
+    **/
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttr(@PathVariable("catelogId") Long catelogId)
+    {
+        /**
+        *@date 2022/6/19 15:27
+        *@Author Dabao
+        * 1.找出当前分类下的所有分组
+        * 2.找出这些分组的所有属性
+        **/
+         List<AttrGroupWithAttrsVo> vosList=attrGroupService.getAttrGroupWithAttrByCatelogId(catelogId);
+         return R.ok().put("data",vosList);
+
+    }
+
 
     ///product/attrgroup/attr/relation  2022/6/19 3:54不按照雷锋杨来
     @PostMapping

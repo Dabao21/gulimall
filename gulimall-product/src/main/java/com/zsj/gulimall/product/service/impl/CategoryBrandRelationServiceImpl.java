@@ -5,9 +5,14 @@ import com.zsj.gulimall.product.dao.BrandDao;
 import com.zsj.gulimall.product.dao.CategoryDao;
 import com.zsj.gulimall.product.entity.BrandEntity;
 import com.zsj.gulimall.product.entity.CategoryEntity;
+import com.zsj.gulimall.product.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -28,6 +33,8 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     @Autowired
     CategoryDao categoryDao;
 
+    @Autowired
+    BrandService brandService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -62,6 +69,24 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     @Override
     public void updateCategory(Long catId, String name) {
         this.baseMapper.updateCategory(catId,name);
+    }
+
+  /**
+  *@date 2022/6/19 14:48 
+  *@Author Dabao
+  * 1.雷丰杨说Service层注入Service好，可以让Service有更丰富的方法 ，但是这里他妈调用的是Service原生的方法啊，你还不如注入DAO
+  * 2.
+  **/
+    @Override
+    public List<BrandEntity> getBrandsByCatId(Long catId) {
+        List<CategoryBrandRelationEntity> categoryBrandRelationEntityList = this.baseMapper.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+        List<BrandEntity> brandEntityList = categoryBrandRelationEntityList.stream().map((item) -> {
+            Long brandId = item.getBrandId();
+            BrandEntity brandEntity = brandService.getById(brandId);
+            return brandEntity;
+        }).collect(Collectors.toList());
+
+        return brandEntityList;
     }
 
  /*   @Override

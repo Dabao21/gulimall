@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zsj.common.to.SkuReductionTo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,21 @@ import com.zsj.common.utils.R;
 public class SkuFullReductionController {
     @Autowired
     private SkuFullReductionService skuFullReductionService;
+
+    /**
+    *@date 2022/6/20 3:47
+    *@Author Dabao
+    * 1. //  2022/6/20 4:28  product.service.impl saveSpuInfo() 5.4 sku的满减信息    `gulimall_sms`->`sms_sku_ladder`\`sms_sku_full_reduction`  \`sms_member_price`完结
+    * 2.
+    **/
+
+    @RequestMapping("/saveInfo")
+    //@RequiresPermissions("coupon:skufullreduction:list")
+    public R saveSkuReduction(@RequestBody SkuReductionTo skuReductionTo){
+
+        skuFullReductionService.saveSkuRduction(skuReductionTo);
+        return R.ok();
+    }
 
     /**
      * 列表

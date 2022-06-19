@@ -217,8 +217,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     }
 
-    @Override   //查找分组关联的属性，前端为关联键
+    @Override   //根据分组id查找分组关联的属性返回属性实体列表，前端为关联键
     public List<AttrEntity> getRelationAttr(Long attrgroupId) {
+        // 2022/6/19 15:52先在关联表找出分组关联的属性id列表
         List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntityList = relationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
         if (attrAttrgroupRelationEntityList!=null) {
             List<Long> longList = attrAttrgroupRelationEntityList.stream().map((entity) -> {

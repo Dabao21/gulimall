@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zsj.common.to.SpuBoundTo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,11 +56,14 @@ public class SpuBoundsController {
     }
 
     /**
-     * 保存
-     */
+    *@date 2022/6/20 3:24
+    *@Author Dabao
+    * 1.保存 被远程调用 目前被com.zsj.gulimall.product.feign.CouponFeignService调用;
+    * 2.只要json数据模型是兼容的，双方服务无需同一个to
+    **/
     @RequestMapping("/save")
     //@RequiresPermissions("coupon:spubounds:save")
-    public R save(@RequestBody SpuBoundsEntity spuBounds){
+    public R save(@RequestBody  SpuBoundsEntity spuBounds){
 		spuBoundsService.save(spuBounds);
 
         return R.ok();
