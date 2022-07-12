@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Autowired
     SkuSaleAttrValueService skuSaleAttrValueService;
 
-    @Autowired
+    @Autowired(required=true)
     CouponFeignService couponFeignService;
 
     @Override
@@ -155,9 +156,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 SkuReductionTo skuReductionTo = new SkuReductionTo();
                 BeanUtils.copyProperties(item,skuReductionTo);
                 skuReductionTo.setSkuId(skuId);
-                R r1 = couponFeignService.saveSkuReduction(skuReductionTo);//  2022/6/20 4:24         远程调用
-                if (r1.getcode()!=0) {
-                    log.error("远程保存sku的满减信息失败");
+                //  2022/6/20 19:37   满减有一个成立就行了，视频里面要两个都成立，不符合逻辑
+                if(skuReductionTo.getFullCount()>0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal("0"))==1)
+                {
+                    R r1 = couponFeignService.saveSkuReduction(skuReductionTo);//  2022/6/20 4:24         远程调用
+                    if (r1.getcode()!=0) {
+                        log.error("远程保存sku的满减信息失败");
+                    }
+
                 }
             });
 
@@ -176,7 +182,49 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         this.baseMapper.insert(spuInfoEntity);
     }
 
+    /**
+    *@date 2022/6/20 20:25
+    *@Author Dabao
+    * 1.复杂检索
+    * 2.
+    **/
+    @Override
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
 
+        QueryWrapper<SpuInfoEntity> spuInfoEntityQueryWrapper = new QueryWrapper<>();
+        String key = (String)params.get("key");
+        if (!StringUtils.isEmpty(key)) {
+            System.out.println("key:"+key);
+            spuInfoEntityQueryWrapper.and(item->{
+                item.eq("id",key).or().like("spu_name",key);
+            });
+            //  2022/6/20 20:43         这样写意思是加括号
+        }
+        String status = (String)params.get("status");
+        if (!StringUtils.isEmpty(status)&&!"0".equalsIgnoreCase(status)) {
+            System.out.println("status:"+status);
+            spuInfoEntityQueryWrapper.eq("publish_status",status);
+        }
+        String catelogid = (String)params.get("catelogid");
+        if (!StringUtils.isEmpty(catelogid)&&!"0".equalsIgnoreCase(catelogid)) {
+            System.out.println("catelogid:"+catelogid);
+            spuInfoEntityQueryWrapper.eq("catalog_id",catelogid) ;//TODO  2022/6/20 20:41     这里为什么他妈的数据库`pms_spu_info`里是catalog_id 之前是怎么没报错的
+        }
+        String brandId = (String)params.get("brandId");
+        if (!StringUtils.isEmpty(brandId)&&!"0".equalsIgnoreCase(brandId)) {
+            System.out.println("brandid:"+brandId);
+            spuInfoEntityQueryWrapper.eq("brand_id",brandId);
+        }
+
+
+
+        IPage<SpuInfoEntity> page = this.page(
+                new Query<SpuInfoEntity>().getPage(params),
+                spuInfoEntityQueryWrapper
+        );
+
+        return new PageUtils(page);
+    }
 
 
 }

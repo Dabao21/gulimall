@@ -34,6 +34,12 @@ public class WareSkuController {
     /**
      * 列表
      */
+    /**
+    *@date 2022/6/21 17:00 
+    *@Author Dabao
+    * 1.前端页面：商品库存 http://localhost:8001/#/ware-sku
+    * 2.针对ware_sku表
+    **/
     @RequestMapping("/list")
     //@RequiresPermissions("ware:waresku:list")
     public R list(@RequestParam Map<String, Object> params){
@@ -50,7 +56,6 @@ public class WareSkuController {
     //@RequiresPermissions("ware:waresku:info")
     public R info(@PathVariable("id") Long id){
 		WareSkuEntity wareSku = wareSkuService.getById(id);
-
         return R.ok().put("wareSku", wareSku);
     }
 

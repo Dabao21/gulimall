@@ -35,10 +35,16 @@ public class SpuInfoController {
     /**
      * 列表
      */
+    /**
+    *@date 2022/6/20 20:24
+    *@Author Dabao
+    * 1.
+    * 2.
+    **/
     @RequestMapping("/list")
     //@RequiresPermissions("product:spuinfo:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }

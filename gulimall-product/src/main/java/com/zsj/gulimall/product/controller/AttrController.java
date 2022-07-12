@@ -1,9 +1,12 @@
 package com.zsj.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zsj.gulimall.product.entity.ProductAttrValueEntity;
+import com.zsj.gulimall.product.service.ProductAttrValueService;
 import com.zsj.gulimall.product.vo.AttrRespVo;
 import com.zsj.gulimall.product.vo.AttrVo;
 import org.apache.ibatis.annotations.Param;
@@ -29,6 +32,36 @@ import com.zsj.common.utils.R;
 public class AttrController {
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    ProductAttrValueService productAttrValueService;
+    /**
+    *@date 2022/6/22 7:15
+    *@Author Dabao
+    * 1./product/attr/base/listforspu/{spuId}
+    * 2.
+    **/
+    @GetMapping("/base/listforspu/{spuId}")
+    public R baseAttrListForSpu(@PathVariable("spuId") Long spuId)
+    {
+        List<ProductAttrValueEntity> productAttrValueEntityList=productAttrValueService.baseAttrListForSpu(spuId);
+        return R.ok().put("data", productAttrValueEntityList);
+    }
+    /**
+    *@date 2022/6/22 7:24
+    *@Author Dabao
+    * 1./product/attr/update/{spuId}
+    * 2.前端http://localhost:8001/#/product-spu页面spu管理， spu管理的规格按钮 规格维护
+    **/
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(
+            @PathVariable("spuId") Long spuId,
+            @RequestBody List<ProductAttrValueEntity> entities)
+    {
+        productAttrValueService.updateSpuAttr(spuId,entities);
+        return R.ok();
+    }
+
 
     ///product/attr/base/list/{catelogId}
     ///product/attr/sale/list/{catelogId}

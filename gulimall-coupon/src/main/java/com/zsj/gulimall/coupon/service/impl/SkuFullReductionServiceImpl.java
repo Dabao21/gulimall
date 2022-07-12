@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,19 +56,25 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
     @Transactional
     public void saveSkuRduction(SkuReductionTo skuReductionTo) {
         //  2022/6/20 3:51         sms_sku_ladder 满数量减
-        SkuLadderEntity skuLadderEntity = new SkuLadderEntity();
-        skuLadderEntity.setSkuId(skuReductionTo.getSkuId());
-        skuLadderEntity.setAddOther(skuReductionTo.getCountStatus());   //  2022/6/20 4:06   满（数量）AddOther减对应的CountStatus
-        skuLadderEntity.setDiscount(skuReductionTo.getDiscount());
-        skuLadderEntity.setFullCount(skuReductionTo.getFullCount());
-        //skuLadderEntity.setPrice();
-        skuLadderService.save(skuLadderEntity);
+        if (skuReductionTo.getFullCount()>0) {
+
+            SkuLadderEntity skuLadderEntity = new SkuLadderEntity();
+            skuLadderEntity.setSkuId(skuReductionTo.getSkuId());
+            skuLadderEntity.setAddOther(skuReductionTo.getCountStatus());   //  2022/6/20 4:06   满（数量）AddOther减对应的CountStatus
+            skuLadderEntity.setDiscount(skuReductionTo.getDiscount());
+            skuLadderEntity.setFullCount(skuReductionTo.getFullCount());
+            //skuLadderEntity.setPrice();
+            skuLadderService.save(skuLadderEntity);
+        }
 
         //  2022/6/20 3:57      sms_sku_full_reduction 满价格减
-        SkuFullReductionEntity skuFullReductionEntity = new SkuFullReductionEntity();
-        BeanUtils.copyProperties(skuReductionTo,skuFullReductionEntity);
-        skuFullReductionEntity.setAddOther(skuReductionTo.getPriceStatus()); //  2022/6/20 4:05  满（价格）AddOther减对应的PriceStatus
-        this.save(skuFullReductionEntity);
+        if (skuReductionTo.getFullPrice().compareTo(new BigDecimal("0"))==1) {
+
+            SkuFullReductionEntity skuFullReductionEntity = new SkuFullReductionEntity();
+            BeanUtils.copyProperties(skuReductionTo,skuFullReductionEntity);
+            skuFullReductionEntity.setAddOther(skuReductionTo.getPriceStatus()); //  2022/6/20 4:05  满（价格）AddOther减对应的PriceStatus
+            this.save(skuFullReductionEntity);
+        }
 
         //  2022/6/20 4:08      `sms_member_price`
         List<SkuReductionTo.MemberPrice> memberPriceList = skuReductionTo.getMemberPrice();
@@ -79,6 +86,8 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
             memberPriceEntity.setMemberLevelId(item.getId());
             memberPriceEntity.setAddOther(1);
             return memberPriceEntity;
+        }).filter(item->{
+            return item.getMemberPrice().compareTo(new BigDecimal("0"))==1;
         }).collect(Collectors.toList());
         memberPriceService.saveBatch(memberPriceEntityList);
 

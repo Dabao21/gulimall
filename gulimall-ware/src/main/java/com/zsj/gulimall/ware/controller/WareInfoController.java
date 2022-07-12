@@ -34,6 +34,12 @@ public class WareInfoController {
     /**
      * 列表
      */
+    /**
+    *@date 2022/6/21 16:55
+    *@Author Dabao
+    * 1.
+    * 2.
+    **/
     @RequestMapping("/list")
     //@RequiresPermissions("ware:wareinfo:list")
     public R list(@RequestParam Map<String, Object> params){

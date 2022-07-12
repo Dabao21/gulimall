@@ -34,10 +34,16 @@ public class SkuInfoController {
     /**
      * 列表
      */
+    /**
+    *@date 2022/6/21 5:44
+    *@Author Dabao
+    * 1.spu管理页面
+    * 2.
+    **/
     @RequestMapping("/list")
     //@RequiresPermissions("product:skuinfo:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = skuInfoService.queryPage(params);
+        PageUtils page = skuInfoService.queryPageByConditon(params);
 
         return R.ok().put("page", page);
     }
